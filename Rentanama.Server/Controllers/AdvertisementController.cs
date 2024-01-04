@@ -10,19 +10,19 @@ using System.Security.Claims;
 
 namespace Rentanama.Server.Controllers
 {
-
+    
     [ApiController]
     [Route("api/advertisements")]
     public class AdvertisementController : ControllerBase
     {
         private readonly IAdvertisementRepository _advertisementRepository;
         private readonly IAuthorizationService _authorizationService;
-        public AdvertisementController(IAdvertisementRepository advertisementRepository, IAuthorizationService authorizationService) 
+        public AdvertisementController(IAdvertisementRepository advertisementRepository, IAuthorizationService authorizationService)
         {
             _advertisementRepository = advertisementRepository;
             _authorizationService = authorizationService;
         }
-       
+   
         [HttpGet]
         public async Task<IEnumerable<AdvertisementDto>> GetMany()
         {
@@ -30,7 +30,12 @@ namespace Rentanama.Server.Controllers
        
             return advertisements.Select(o => new AdvertisementDto(o.Id, o.Name, o.CreationTime, o.Description));
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <response code="200">Created advertisement</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="404">Not Found</response>
         // api/advertisements/{advertisementsId}
         [HttpGet]
         [Route("{advertisementId}", Name = "GetAdvertisement")]
@@ -56,8 +61,11 @@ namespace Rentanama.Server.Controllers
                 Name = createAdvertisementDto.Name,
                 CreationTime= DateTime.UtcNow, 
                 Description = createAdvertisementDto.Description,
-                UserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+                UserId = User.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")
+
             };
+
+            Console.WriteLine(advertisement.UserId);
 
            await _advertisementRepository.CreateAsync(advertisement);
 
@@ -70,6 +78,7 @@ namespace Rentanama.Server.Controllers
         [HttpPut]
         [Route("{advertisementId}")]
         [Authorize(Roles = UserRoles.SystemUser)]
+  
         public async Task<ActionResult<AdvertisementDto>> Update(int advertisementId, UpdateAdvertisementDto updateAdvertisementDto)
         {
             var advertisements = await _advertisementRepository.GetAsync(advertisementId);
@@ -77,13 +86,12 @@ namespace Rentanama.Server.Controllers
             //If object is not found, 404 status code
             if (advertisements == null)
                 return NotFound();
-
-            var authorizationResult = await _authorizationService.AuthorizeAsync(User, advertisements, PolicyNames.ResourceOwner);
-            if(!authorizationResult.Succeeded)
-            {
-                // 403
-                return Forbid();
-            }
+            //var authorizationResult = await _authorizationService.AuthorizeAsync(User, advertisements, PolicyNames.ResourceOwner);
+            //if (!authorizationResult.Succeeded)
+            //{
+            //    // 403
+            //    return Forbid();
+            //}
 
             advertisements.Name = updateAdvertisementDto.Name;
             advertisements.Description = updateAdvertisementDto.Description;
@@ -94,6 +102,7 @@ namespace Rentanama.Server.Controllers
 
         [HttpDelete]
         [Route("{advertisementId}")]
+        [Authorize(Roles = UserRoles.SystemUser)]
         public async Task<ActionResult> Delete(int advertisementId)
         {
             var advertisements = await _advertisementRepository.GetAsync(advertisementId);

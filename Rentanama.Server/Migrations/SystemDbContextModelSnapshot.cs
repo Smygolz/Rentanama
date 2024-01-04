@@ -250,7 +250,7 @@ namespace Rentanama.Server.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Advertisements");
+                    b.ToTable("Advertisements", (string)null);
                 });
 
             modelBuilder.Entity("Rentanama.Server.Data.Entities.Apartment", b =>
@@ -280,7 +280,7 @@ namespace Rentanama.Server.Migrations
 
                     b.HasIndex("AdvertisementId");
 
-                    b.ToTable("Apartments");
+                    b.ToTable("Apartments", (string)null);
                 });
 
             modelBuilder.Entity("Rentanama.Server.Data.Entities.City", b =>
@@ -313,7 +313,7 @@ namespace Rentanama.Server.Migrations
 
                     b.HasIndex("ApartmentId");
 
-                    b.ToTable("Cities");
+                    b.ToTable("Cities", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -4,7 +4,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Rentanama.Server.Data.Entities
 {
-    public class Advertisement : IUserOwnedResource
+    //public class Advertisement : IUserOwnedResource
+        public class Advertisement
     {
         public int Id { get; set; }
         [Required(ErrorMessage ="Name is required")]

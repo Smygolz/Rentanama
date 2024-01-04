@@ -16,8 +16,6 @@ namespace Rentanama.Server.Controllers
     {
         private readonly IApartmentRepository _apartmentRepository;
         private readonly IAdvertisementRepository _advertisementRepository;
-        //private readonly IMapper _mapper;
-        
         public ApartmentController(IApartmentRepository apartmentRepository, IAdvertisementRepository advertisementRepository) {
            _apartmentRepository = apartmentRepository;
            _advertisementRepository = advertisementRepository;
