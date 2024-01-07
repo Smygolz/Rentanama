@@ -6,6 +6,8 @@ using Rentanama.Server.Data.Entities;
 using Rentanama.Server.Data.Repositories;
 using Microsoft.Extensions.Hosting;
 using System.Drawing;
+using Microsoft.AspNetCore.Authorization;
+using Rentanama.Server.Auth.Model;
 
 namespace Rentanama.Server.Controllers
 {
@@ -16,9 +18,11 @@ namespace Rentanama.Server.Controllers
     {
         private readonly IApartmentRepository _apartmentRepository;
         private readonly IAdvertisementRepository _advertisementRepository;
-        public ApartmentController(IApartmentRepository apartmentRepository, IAdvertisementRepository advertisementRepository) {
+        private readonly IAuthorizationService _authorizationService;
+        public ApartmentController(IApartmentRepository apartmentRepository, IAdvertisementRepository advertisementRepository, IAuthorizationService authorizationService) {
            _apartmentRepository = apartmentRepository;
            _advertisementRepository = advertisementRepository;
+            _authorizationService = authorizationService;
            //_mapper = mapper;
         }
 
@@ -41,13 +45,14 @@ namespace Rentanama.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemUser)]
         public async Task<ActionResult<ApartmentDto>> PostAsync(int advertisementId, CreateApartmentDto apartmentDto) 
         {
             var advertisements = await _advertisementRepository.GetAsync(advertisementId);
             if (advertisements == null) return NotFound($"Couldn't find a advertisement with id of {advertisementId}");
 
 
-            var apartment = new Apartment { SquareMeters = apartmentDto.SquareMeters, Cost = apartmentDto.Cost, Floor = apartmentDto.Cost };
+            var apartment = new Apartment { SquareMeters = apartmentDto.SquareMeters, Cost = apartmentDto.Cost, Floor = apartmentDto.Floor };
             apartment.AdvertisementId = advertisementId;
             await _apartmentRepository.InsertAsync(apartment);
             return Created($"/api/advertisements/{advertisementId}/apartments/{apartment.Id}",
@@ -56,6 +61,7 @@ namespace Rentanama.Server.Controllers
 
         [HttpPut]
         [Route("{apartmentId}")]
+        [Authorize(Roles =UserRoles.SystemUser)]
         public async Task<ActionResult<ApartmentDto>> UpdateAsync(int advertisementsId, int apartmentId, UpdateApartmentDto apartmentDto)
         {
             var advertisement = await _advertisementRepository.GetAsync(advertisementsId);
@@ -77,6 +83,7 @@ namespace Rentanama.Server.Controllers
 
         [HttpDelete]
         [Route("{apartmentId}")]
+        [Authorize(Roles=UserRoles.Admin)]
         public async Task<ActionResult> DeleteAsync(int advertisementsId, int apartmentId) 
         {
             var apartment = await _apartmentRepository.GetAllAsync(advertisementsId, apartmentId);

@@ -1,0 +1,38 @@
+/* This is to ensure there is no extra margin or padding creating gaps */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  background-color: #80b918;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+}
+
+.navContainer {
+  display: flex;
+  gap: 10px;
+}
+
+.navItem {
+  margin-left: 10px;
+}
+
+@media (max-width: 768px) {
+  .headerContainer {
+    flex-direction: column;
+  }
+
+  .navContainer {
+    margin-top: 10px;
+  }
+}

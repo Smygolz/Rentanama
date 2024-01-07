@@ -30,12 +30,7 @@ namespace Rentanama.Server.Controllers
        
             return advertisements.Select(o => new AdvertisementDto(o.Id, o.Name, o.CreationTime, o.Description));
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <response code="200">Created advertisement</response>
-        /// <response code="401">Unauthorized</response>
-        /// <response code="404">Not Found</response>
+    
         // api/advertisements/{advertisementsId}
         [HttpGet]
         [Route("{advertisementId}", Name = "GetAdvertisement")]
@@ -86,7 +81,7 @@ namespace Rentanama.Server.Controllers
             //If object is not found, 404 status code
             if (advertisements == null)
                 return NotFound();
-            //var authorizationResult = await _authorizationService.AuthorizeAsync(User, advertisements, PolicyNames.ResourceOwner);
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, advertisements, PolicyNames.ResourceOwner);
             //if (!authorizationResult.Succeeded)
             //{
             //    // 403
@@ -102,7 +97,7 @@ namespace Rentanama.Server.Controllers
 
         [HttpDelete]
         [Route("{advertisementId}")]
-        [Authorize(Roles = UserRoles.SystemUser)]
+        [Authorize(Roles = UserRoles.Admin)]
         public async Task<ActionResult> Delete(int advertisementId)
         {
             var advertisements = await _advertisementRepository.GetAsync(advertisementId);

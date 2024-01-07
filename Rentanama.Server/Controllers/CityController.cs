@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Rentanama.Server.Auth.Model;
 using Rentanama.Server.Data.Dtos.Cities;
 using Rentanama.Server.Data.Entities;
 using Rentanama.Server.Data.Repositories;
@@ -13,13 +15,15 @@ namespace Rentanama.Server.Controllers
             private readonly IApartmentRepository _apartmentRepository;
         private readonly IAdvertisementRepository _advertisementRepository;
         private readonly ICityRepository _cityRepository;
-            //private readonly IMapper _mapper;
+        private readonly IAuthorizationService _authorizationService;
+        //private readonly IMapper _mapper;
 
-            public CityController(IApartmentRepository apartmentRepository, IAdvertisementRepository advertisementRepository, ICityRepository cityRepository)
+        public CityController(IApartmentRepository apartmentRepository, IAdvertisementRepository advertisementRepository, ICityRepository cityRepository, IAuthorizationService authorizationService)
             {
                 _apartmentRepository = apartmentRepository;
                 _advertisementRepository = advertisementRepository;
                 _cityRepository = cityRepository;
+                _authorizationService = authorizationService;
                 //_mapper = mapper;
             }
 
@@ -42,7 +46,8 @@ namespace Rentanama.Server.Controllers
             }
 
             [HttpPost]
-            public async Task<ActionResult<CitiesDto>> PostAsync(int advertisementId, int apartmentId, CreateCitiesDto cityDto)
+            [Authorize(Roles = UserRoles.SystemUser)]
+        public async Task<ActionResult<CitiesDto>> PostAsync(int advertisementId, int apartmentId, CreateCitiesDto cityDto)
             {
                 var advertisements = await _advertisementRepository.GetAsync(advertisementId);
                 if (advertisements == null) return NotFound($"Couldn't find a advertisement with id of {advertisementId}");
@@ -63,7 +68,8 @@ namespace Rentanama.Server.Controllers
 
             [HttpPut]
             [Route("{cityId}")]
-            public async Task<ActionResult<CitiesDto>> UpdateAsync(int advertisementsId, int apartmentId, int cityId, UpdateCitiesDto updateCitiesDto)
+            [Authorize(Roles = UserRoles.SystemUser)]
+        public async Task<ActionResult<CitiesDto>> UpdateAsync(int advertisementsId, int apartmentId, int cityId, UpdateCitiesDto updateCitiesDto)
             {
                 var advertisement = await _advertisementRepository.GetAsync(advertisementsId);
                 if (advertisement == null) return NotFound($"Couldn't find an advertisement with {advertisementsId}");
@@ -85,7 +91,8 @@ namespace Rentanama.Server.Controllers
 
             [HttpDelete]
             [Route("{cityId}")]
-            public async Task<ActionResult> DeleteAsync(int advertisementsId, int apartmentId, int cityId)
+            [Authorize(Roles = UserRoles.Admin)]
+        public async Task<ActionResult> DeleteAsync(int advertisementsId, int apartmentId, int cityId)
             {
                 var city = await _cityRepository.GetAllAsync(advertisementsId, apartmentId, cityId);
                 if (city == null)
